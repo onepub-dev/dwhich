@@ -1,8 +1,12 @@
 name: dwhich
-version: 0.0.1
+version: 0.0.3
 description: A dwhich command-line application created by dcli
+repository: https://github.com/onepub-dev/dwhich.git
 environment: 
   sdk: '>=2.16.0 <3.0.0'
 dependencies: 
-  dcli: 1.33.0
+  dcli: ^1.33.0
 dev_dependencies: {lint_hard: ^2.0.0}
+
+executables:
+  dwhich:
