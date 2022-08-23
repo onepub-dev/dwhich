@@ -92,6 +92,14 @@ bool validatePath(String path, Args args, String? lastPath) {
 
   if (valid && !exists(path)) {
     validation(args, () => red('The path $path does not exist.'));
+
+    if (path.contains('~')) {
+      validation(
+          args,
+          () => red("The path $path contains a '~' which is not supported. "
+              'Replace it with ${path.replaceAll('~', r'$HOME')}'));
+    }
+
     valid = false;
   }
   return valid;
