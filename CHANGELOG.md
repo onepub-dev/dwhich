@@ -1,3 +1,6 @@
+# 1.0.3
+- upgraded to lates version of dcli.
+
 # 1.0.2
 = Added detection of the unsupported ~ in paths.
 - removed \n's from pubspec description. 

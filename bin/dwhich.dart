@@ -6,7 +6,7 @@
  */
 
 import 'dart:io';
-import 'package:dcli/dcli.dart';
+import 'package:dcli/dcli.dart' hide ExitException;
 import 'package:dwhich/src/args.dart';
 import 'package:dwhich/src/exit_exception.dart';
 
