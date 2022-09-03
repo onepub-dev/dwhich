@@ -1,11 +1,11 @@
 name: dwhich
-version: 1.0.3
+version: 1.0.4
 description: An extended version of the which command that also validates your PATH and indicates if the command is found in multiple locations on your PATH.\n
 repository: https://github.com/onepub-dev/dwhich.git
 environment: 
   sdk: '>=2.16.0 <3.0.0'
 dependencies: 
-  dcli: ^1.33.0
+  dcli: ^1.34.0
 dev_dependencies: 
   lint_hard: ^2.0.0
 executables: 
