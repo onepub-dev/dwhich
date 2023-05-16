@@ -1,4 +1,5 @@
-import 'package:dcli/dcli.dart' hide ExitException;
+import 'package:args/args.dart';
+import 'package:dcli/dcli.dart';
 
 import 'exit_exception.dart';
 

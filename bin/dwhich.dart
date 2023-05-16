@@ -6,13 +6,11 @@
  */
 
 import 'dart:io';
-import 'package:dcli/dcli.dart' hide ExitException;
+
+import 'package:dcli/dcli.dart';
 import 'package:dwhich/src/args.dart';
 import 'package:dwhich/src/exit_exception.dart';
-
-bool found = false;
-bool execuable = false;
-bool pathIsValid = false;
+import 'package:path/path.dart';
 
 /// dwhich appname - searches for 'appname' on the path
 void main(List<String> cliArgs) {
