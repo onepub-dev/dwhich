@@ -12,5 +12,5 @@ import 'package:dcli/dcli.dart';
 /// For details on installing dcli.
 ///
 void main(List<String> args) {
-  'dcli dep unpin'.run;
+  // 'dcli unlock'.run;
 }
