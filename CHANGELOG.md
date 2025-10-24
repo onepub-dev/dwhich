@@ -1,3 +1,6 @@
+# 2.0.1
+- upgraded all packages. lint fixes.
+
 # 4.0.0
 - upgraded to support dart 3.2 and above by removing the dcli components
 that utilise waitfor.
