@@ -4,6 +4,53 @@ import 'package:dcli/dcli.dart';
 import 'exit_exception.dart';
 
 class Args {
+  late final ArgResults results;
+
+  late final bool debug;
+
+  late bool validate;
+
+  late final bool first;
+
+  late final String command;
+
+  static final parser = ArgParser()
+    ..addFlag(
+      'help',
+      abbr: 'h',
+      negatable: false,
+      help: 'Displays this usage message.',
+    )
+    // validate the path
+    ..addFlag(
+      'validate',
+      abbr: 'v',
+      defaultsTo: true,
+      help: '''
+Performs validation on the PATH environment variable
+such as checking for:
+  * duplicates
+  * empty paths
+  * paths to non-existant directories
+''',
+    )
+// only display the first result - also disabled validation
+// unless you explicitly pass --validation
+    ..addFlag(
+      'first',
+      abbr: 'f',
+      negatable: false,
+      help: '''
+Restricts the output to the first path containing the command.
+''',
+    )
+// dump debugging outpu
+    ..addFlag('debug',
+        abbr: 'd',
+        negatable: false,
+        hide: true,
+        help: 'Dumps detailed logging.');
+
   Args.parse(List<String> args) {
     try {
       results = parser.parse(args);
@@ -28,12 +75,6 @@ class Args {
           0, 'You must pass the name of the executable to search for.');
     }
   }
-  late final ArgResults results;
-  late final bool debug;
-  late bool validate;
-  late final bool first;
-
-  late final String command;
 
   void extractCommand() {
     if (results.rest.length != 1) {
@@ -72,41 +113,4 @@ Exit Status:
                   6 - an invalid arguments were passed.
 ''');
   }
-
-  static final parser = ArgParser()
-    ..addFlag(
-      'help',
-      abbr: 'h',
-      negatable: false,
-      help: 'Displays this usage message.',
-    )
-    // validate the path
-    ..addFlag(
-      'validate',
-      abbr: 'v',
-      defaultsTo: true,
-      help: '''
-Performs validation on the PATH environment variable
-such as checking for:
-  * duplicates
-  * empty paths
-  * paths to non-existant directories
-''',
-    )
-// only display the first result - also disabled validation
-// unless you explicitly pass --validation
-    ..addFlag(
-      'first',
-      abbr: 'f',
-      negatable: false,
-      help: '''
-Restricts the output to the first path containing the command.
-''',
-    )
-// dump debugging outpu
-    ..addFlag('debug',
-        abbr: 'd',
-        negatable: false,
-        hide: true,
-        help: 'Dumps detailed logging.');
 }

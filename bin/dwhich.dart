@@ -81,9 +81,8 @@ bool validatePath(String path, Args args, String? lastPath) {
               'to an empty path '
               '${lastPath == null ? '' : 'after $lastPath'} .'));
     } else {
-      validation(args, () => red(
-          // ignore: lines_longer_than_80_chars
-          'Found empty path ${lastPath == null ? '' : 'after $lastPath'}.'));
+      validation(args, () => red('''
+Found empty path ${lastPath == null ? '' : 'after $lastPath'}.'''));
       valid = false;
     }
   }
@@ -144,7 +143,6 @@ String? containsCommand(String cmd) {
 }
 
 final problems = <String>[];
-// ignore: avoid_positional_boolean_parameters
 void validation(Args args, String Function() message) {
   if (args.validate) {
     problems.add(message());

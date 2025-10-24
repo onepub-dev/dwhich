@@ -1,3 +1,7 @@
+# 4.0.0
+- upgraded to support dart 3.2 and above by removing the dcli components
+that utilise waitfor.
+
 # 2.0.0
 - upgraded to support dart 3.x
 
