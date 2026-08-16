@@ -2,3 +2,4 @@
 .dart_tool
 .failed_tracker
 custom_lint.log
+logs/analyzer.txt
