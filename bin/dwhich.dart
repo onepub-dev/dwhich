@@ -11,6 +11,7 @@ import 'package:dcli/dcli.dart';
 import 'package:dwhich/src/args.dart';
 import 'package:dwhich/src/exit_exception.dart';
 import 'package:path/path.dart';
+import 'package:posix/posix.dart' as posix;
 
 /// dwhich appname - searches for 'appname' on the path
 void main(List<String> cliArgs) {
@@ -21,7 +22,11 @@ void main(List<String> cliArgs) {
   try {
     args = Args.parse(cliArgs);
 
-    Settings().setVerbose(enabled: args.debug);
+    // DCLI verbose logs raw PATH values before this CLI can escape them.
+    Settings().setVerbose(enabled: false);
+    if (args.debug) {
+      printerr('Raw dependency debug logging is disabled for PATH lookups.');
+    }
 
     // validation(args, () => 'Path: ${env['PATH']}');
 
@@ -38,13 +43,14 @@ void main(List<String> cliArgs) {
       final pathToCmd = containsCommand(truepath(path, args.command));
       if (pathToCmd != null) {
         found = true;
-        if (!isExecutable(pathToCmd)) {
-          print('Found at: $pathToCmd but it is not executable.');
+        if (!isExecutableCommand(pathToCmd)) {
+          print(
+              'Found at: ${safeDisplay(pathToCmd)} but it is not executable.');
           continue;
         }
         exectuable = true;
 
-        print('Found at: $pathToCmd');
+        print('Found at: ${safeDisplay(pathToCmd)}');
 
         // found an exectuable.
         if (args.first) {
@@ -54,7 +60,7 @@ void main(List<String> cliArgs) {
       priorPath = path;
     }
   } on ExitException catch (e) {
-    printerr(red(e.message));
+    printerr(red(safeDisplay(e.message)));
     if (e.exitCode == ExitException.invalidArgs) {
       Args.showUsage();
     }
@@ -79,22 +85,24 @@ bool validatePath(String path, Args args, String? lastPath) {
           args,
           () => orange('WARNING: current directory is on your path due '
               'to an empty path '
-              '${lastPath == null ? '' : 'after $lastPath'} .'));
+              '${lastPath == null ? '' : 'after ${safeDisplay(lastPath)}'} .'));
     } else {
       validation(args, () => red('''
-Found empty path ${lastPath == null ? '' : 'after $lastPath'}.'''));
+Found empty path ${lastPath == null ? '' : 'after ${safeDisplay(lastPath)}'}.'''));
       valid = false;
     }
   }
 
   if (valid && !exists(path)) {
-    validation(args, () => red('The path $path does not exist.'));
+    validation(
+        args, () => red('The path ${safeDisplay(path)} does not exist.'));
 
     if (path.contains('~')) {
       validation(
           args,
-          () => red("The path $path contains a '~' which is not supported. "
-              'Replace it with ${path.replaceAll('~', r'$HOME')}'));
+          () => red(
+              'The path ${safeDisplay(path)} contains an unsupported tilde. '
+              'Replace it with a literal home directory path.'));
     }
 
     valid = false;
@@ -120,7 +128,8 @@ Set<String> dedupPaths(Args args) {
 
   for (final path in PATH) {
     if (paths.contains(path)) {
-      validation(args, () => orange('Found duplicated path: $path in PATH'));
+      validation(args,
+          () => orange('Found duplicated path: ${safeDisplay(path)} in PATH'));
     } else {
       paths.add(path);
     }
@@ -130,16 +139,53 @@ Set<String> dedupPaths(Args args) {
 
 String? containsCommand(String cmd) {
   if (!Platform.isWindows || extension(cmd).isNotEmpty) {
-    return exists(cmd) ? cmd : null;
+    return FileSystemEntity.typeSync(cmd) == FileSystemEntityType.file
+        ? cmd
+        : null;
   }
 
-  for (final ext in env['PATHEXT']!.split(';')) {
+  for (final ext in (env['PATHEXT'] ?? '.COM;.EXE;.BAT;.CMD').split(';')) {
     final fullCmd = '$cmd$ext';
-    if (exists(fullCmd)) {
+    if (FileSystemEntity.typeSync(fullCmd) == FileSystemEntityType.file) {
       return fullCmd;
     }
   }
   return null;
+}
+
+/// Checks the selected file without running helpers found on PATH.
+bool isExecutableCommand(String path) {
+  if (FileSystemEntity.typeSync(path) != FileSystemEntityType.file) {
+    return false;
+  }
+  if (Platform.isWindows) {
+    return true;
+  }
+  return posix.access(path, posix.X_OK) == 0;
+}
+
+/// Make untrusted filenames and PATH values unambiguous in terminal output.
+String safeDisplay(String value) {
+  final output = StringBuffer();
+  for (final rune in value.runes) {
+    if (rune == 10) {
+      output.write(r'\n');
+    } else if (rune == 13) {
+      output.write(r'\r');
+    } else if (rune == 9) {
+      output.write(r'\t');
+    } else if (rune < 32 ||
+        (rune >= 0x7f && rune <= 0x9f) ||
+        rune == 0x200e ||
+        rune == 0x200f ||
+        (rune >= 0x202a && rune <= 0x202e) ||
+        (rune >= 0x2066 && rune <= 0x2069)) {
+      output.write('\\u{${rune.toRadixString(16)}}');
+    } else {
+      output.writeCharCode(rune);
+    }
+  }
+  return output.toString();
 }
 
 final problems = <String>[];

@@ -1,3 +1,10 @@
+# 2.0.2
+- Check executable permissions through the native POSIX access API instead of
+  running helpers found on the PATH being inspected.
+- Escape terminal control characters in displayed paths and reject directories
+  as command matches. Disable raw dependency debug logs during PATH lookup.
+- Correct the Dart minimum to 3.10.1 and release-restoration constraints.
+
 # 2.0.1
 - upgraded all packages. lint fixes.
 
